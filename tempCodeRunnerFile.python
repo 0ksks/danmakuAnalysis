@@ -1,0 +1,21 @@
+import re
+import requests
+from selenium.webdriver.common.by import By
+import selenium.webdriver as wbd
+import time
+import pandas as pd
+import sys
+
+video = "https://www.bilibili.com/video/BV16V4y1Y7Dn/?spm_id_from=333.337.search-card.all.click&vd_source=d65473f5282c0a31ff7caf98e5d5f0f2"#视频链接
+req = requests.get(video)#获取response
+html = req.text
+cid = re.findall('\"cid\":(.*?),',html)[0]#从response中用正则表达式寻找cid（即该视频调用弹幕时向api接口发送的信息）
+danmakuUrl = 'https://api.bilibili.com/x/v1/dm/list.so?oid={}'.format(cid)#改为由本程序发送并获取弹幕
+OPTIONS = wbd.ChromeOptions()
+OPTIONS.add_argument(
+    'user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"')
+dri = wbd.Chrome(options=OPTIONS)
+dri.get(danmakuUrl)
+xml = dri.find_elements(By.CLASS_NAME,"opened")
+print(xml)
+dri.close()
